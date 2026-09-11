@@ -1,28 +1,20 @@
 module "app" {
   source = "./modules/app"
 
-  vpc_id        = var.vpc_id
-  subnet_id     = var.app_subnet_id
-  instance_type = var.instance_type
-}
-
-module "ssm" {
-  source = "./modules/ssm"
-
-  vpc_id             = var.vpc_id
-  vpc_cidr           = var.vpc_cidr
-  private_subnet_ids = var.private_subnet_ids
+  vpc_id    = module.vpc.vpc_id
+  subnet_id = module.vpc.private_subnet_ids[0]
 }
 
 module "rds" {
   source = "./modules/rds"
 
-  vpc_id             = var.vpc_id
-  private_subnet_ids = var.private_subnet_ids
-
-  db_name     = var.db_name
-  db_username = var.db_username
-  db_password = var.db_password
-
-  app_security_group_id = module.app.security_group_id
+  vpc_id             = module.vpc.vpc_id
+  private_subnet_ids = module.vpc.private_subnet_ids
 }
+
+module "ssm" {
+  source = "./modules/ssm"
+
+  vpc_id             = module.vpc.vpc_id
+  private_subnet_ids = module.vpc.private_subnet_ids
+}  
